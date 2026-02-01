@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Details - Student Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/students">Students</a></li>
+            <li><a href="/teachers">Teachers</a></li>
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="/departments">Departments</a></li>
+            <li><a href="/profile">My Profile</a></li>
+            <li class="logout-btn">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Teacher Details</h1>
+            <a href="/teachers" class="btn btn-secondary">Back to List</a>
+        </div>
+        
+        <div class="card">
+            <h2 th:text="${teacher.firstName + ' ' + teacher.lastName}">Teacher Name</h2>
+            
+            <div class="detail-row">
+                <span class="detail-label">ID:</span>
+                <span class="detail-value" th:text="${teacher.id}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">First Name:</span>
+                <span class="detail-value" th:text="${teacher.firstName}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Last Name:</span>
+                <span class="detail-value" th:text="${teacher.lastName}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" th:text="${teacher.email}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value" th:text="${teacher.phone ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Qualification:</span>
+                <span class="detail-value" th:text="${teacher.qualification ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Specialization:</span>
+                <span class="detail-value" th:text="${teacher.specialization ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Department:</span>
+                <span class="detail-value" th:text="${teacher.department != null} ? ${teacher.department.name} : 'N/A'"></span>
+            </div>
+            
+            <div class="actions" style="margin-top: 20px;">
+                <a sec:authorize="hasRole('TEACHER')" th:href="@{/teachers/edit/{id}(id=${teacher.id})}" class="btn btn-secondary">Edit</a>
+                <a sec:authorize="hasRole('TEACHER')" th:href="@{/teachers/delete/{id}(id=${teacher.id})}" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+            </div>
+        </div>
+        
+        <div class="card" th:if="${teacher.courses != null && !teacher.courses.isEmpty()}">
+            <h2>Courses Taught</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Credits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="course : ${teacher.courses}">
+                        <td th:text="${course.code}"></td>
+                        <td th:text="${course.name}"></td>
+                        <td th:text="${course.credits}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

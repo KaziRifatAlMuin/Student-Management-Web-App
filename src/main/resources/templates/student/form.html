@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${student.id != null} ? 'Edit Student' : 'Add Student'">Student Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/students">Students</a></li>
+            <li><a href="/teachers">Teachers</a></li>
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="/departments">Departments</a></li>
+            <li><a href="/profile">My Profile</a></li>
+            <li class="logout-btn">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1 th:text="${student.id != null} ? 'Edit Student' : 'Add New Student'">Student Form</h1>
+            <a href="/students" class="btn btn-secondary">Back to List</a>
+        </div>
+        
+        <div class="card">
+            <form th:action="@{/students/save}" th:object="${student}" method="post">
+                <input type="hidden" th:field="*{id}">
+                
+                <div class="form-group">
+                    <label for="studentId">Student ID</label>
+                    <input type="text" id="studentId" th:field="*{studentId}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" th:field="*{firstName}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" th:field="*{lastName}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" th:field="*{email}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" id="phone" th:field="*{phone}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <input type="number" id="year" th:field="*{year}" min="1" max="6">
+                </div>
+                
+                <div class="form-group">
+                    <label for="departmentId">Department</label>
+                    <select id="departmentId" name="departmentId">
+                        <option value="">-- Select Department --</option>
+                        <option th:each="dept : ${departments}" 
+                                th:value="${dept.id}" 
+                                th:text="${dept.name}"
+                                th:selected="${student.department != null && student.department.id == dept.id}"></option>
+                    </select>
+                </div>
+                
+                <!-- Account creation fields (only for new students) -->
+                <div th:if="${student.id == null}">
+                    <h3 style="margin: 20px 0 15px 0;">Login Account</h3>
+                    
+                    <div class="form-group">
+                        <label for="username">Username *</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Save Student</button>
+                <a href="/students" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

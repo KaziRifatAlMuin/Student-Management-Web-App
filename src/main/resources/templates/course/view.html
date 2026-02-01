@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - Student Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/students">Students</a></li>
+            <li><a href="/teachers">Teachers</a></li>
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="/departments">Departments</a></li>
+            <li><a href="/profile">My Profile</a></li>
+            <li class="logout-btn">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Course Details</h1>
+            <a href="/courses" class="btn btn-secondary">Back to List</a>
+        </div>
+
+        <div class="card">
+            <h2 th:text="${course.name}">Course Name</h2>
+
+            <div class="detail-row">
+                <span class="detail-label">Code:</span>
+                <span class="detail-value" th:text="${course.code}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Name:</span>
+                <span class="detail-value" th:text="${course.name}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Credits:</span>
+                <span class="detail-value" th:text="${course.credits ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Description:</span>
+                <span class="detail-value" th:text="${course.description ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Department:</span>
+                <span class="detail-value"
+                    th:text="${course.department != null} ? ${course.department.name} : 'N/A'"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Teacher:</span>
+                <span class="detail-value"
+                    th:text="${course.teacher != null} ? ${course.teacher.firstName + ' ' + course.teacher.lastName} : 'N/A'"></span>
+            </div>
+
+            <div class="actions" style="margin-top: 20px;">
+                <a sec:authorize="hasRole('TEACHER')" th:href="@{/courses/edit/{id}(id=${course.id})}"
+                    class="btn btn-secondary">Edit</a>
+                <a sec:authorize="hasRole('TEACHER')" th:href="@{/courses/delete/{id}(id=${course.id})}"
+                    class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+            </div>
+        </div>
+
+        <div class="card" th:if="${course.students != null && !course.students.isEmpty()}">
+            <h2>Enrolled Students</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="student : ${course.students}">
+                        <td th:text="${student.studentId}"></td>
+                        <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+                        <td th:text="${student.email}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/students">Students</a></li>
+            <li><a href="/teachers">Teachers</a></li>
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="/departments">Departments</a></li>
+            <li><a href="/profile">My Profile</a></li>
+            <li class="user-info">
+                <span sec:authentication="name"></span>
+                <span class="badge" th:classappend="${role == 'ROLE_TEACHER'} ? 'badge-teacher' : 'badge-student'"
+                      th:text="${role == 'ROLE_TEACHER'} ? 'Teacher' : 'Student'"></span>
+            </li>
+            <li class="logout-btn">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1 style="margin-bottom: 30px;">Welcome to Student Management System</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 th:text="${studentCount}">0</h3>
+                <p>Students</p>
+            </div>
+            <div class="stat-card">
+                <h3 th:text="${teacherCount}">0</h3>
+                <p>Teachers</p>
+            </div>
+            <div class="stat-card">
+                <h3 th:text="${courseCount}">0</h3>
+                <p>Courses</p>
+            </div>
+            <div class="stat-card">
+                <h3 th:text="${departmentCount}">0</h3>
+                <p>Departments</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Quick Actions</h2>
+            <div class="actions">
+                <a href="/students" class="btn btn-primary">View Students</a>
+                <a href="/teachers" class="btn btn-primary">View Teachers</a>
+                <a href="/courses" class="btn btn-primary">View Courses</a>
+                <a href="/departments" class="btn btn-primary">View Departments</a>
+            </div>
+            
+            <div sec:authorize="hasRole('TEACHER')">
+                <h3 style="margin-top: 20px; margin-bottom: 15px;">Teacher Actions</h3>
+                <div class="actions">
+                    <a href="/students/new" class="btn btn-success">Add New Student</a>
+                    <a href="/teachers/new" class="btn btn-success">Add New Teacher</a>
+                    <a href="/courses/new" class="btn btn-success">Add New Course</a>
+                    <a href="/departments/new" class="btn btn-success">Add New Department</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" th:if="${profile != null}">
+            <h2>Your Profile Summary</h2>
+            <div class="detail-row">
+                <span class="detail-label">Name:</span>
+                <span class="detail-value" th:text="${profile.firstName} + ' ' + ${profile.lastName}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" th:text="${profile.email}"></span>
+            </div>
+            <div class="detail-row" th:if="${profile.department != null}">
+                <span class="detail-label">Department:</span>
+                <span class="detail-value" th:text="${profile.department.name}"></span>
+            </div>
+            <a href="/profile" class="btn btn-secondary" style="margin-top: 15px;">View Full Profile</a>
+        </div>
+    </div>
+</body>
+</html>

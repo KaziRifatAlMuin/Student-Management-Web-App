@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departments - Student Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/students">Students</a></li>
+            <li><a href="/teachers">Teachers</a></li>
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="/departments">Departments</a></li>
+            <li><a href="/profile">My Profile</a></li>
+            <li class="logout-btn">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Departments</h1>
+            <a sec:authorize="hasRole('TEACHER')" href="/departments/new" class="btn btn-success">Add New Department</a>
+        </div>
+        
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="department : ${departments}">
+                        <td th:text="${department.id}"></td>
+                        <td th:text="${department.name}"></td>
+                        <td th:text="${department.description}"></td>
+                        <td>
+                            <a th:href="@{/departments/view/{id}(id=${department.id})}" class="btn btn-primary btn-sm">View</a>
+                            <a sec:authorize="hasRole('TEACHER')" th:href="@{/departments/edit/{id}(id=${department.id})}" class="btn btn-secondary btn-sm">Edit</a>
+                            <a sec:authorize="hasRole('TEACHER')" th:href="@{/departments/delete/{id}(id=${department.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(departments)}">
+                        <td colspan="4" style="text-align: center;">No departments found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details - Student Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/students">Students</a></li>
+            <li><a href="/teachers">Teachers</a></li>
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="/departments">Departments</a></li>
+            <li><a href="/profile">My Profile</a></li>
+            <li class="logout-btn">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Student Details</h1>
+            <a href="/students" class="btn btn-secondary">Back to List</a>
+        </div>
+        
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        
+        <div class="card">
+            <h2 th:text="${student.firstName + ' ' + student.lastName}">Student Name</h2>
+            
+            <div class="detail-row">
+                <span class="detail-label">ID:</span>
+                <span class="detail-value" th:text="${student.id}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Student ID:</span>
+                <span class="detail-value" th:text="${student.studentId ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">First Name:</span>
+                <span class="detail-value" th:text="${student.firstName}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Last Name:</span>
+                <span class="detail-value" th:text="${student.lastName}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" th:text="${student.email}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value" th:text="${student.phone ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Year:</span>
+                <span class="detail-value" th:text="${student.year ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Department:</span>
+                <span class="detail-value" th:text="${student.department != null} ? ${student.department.name} : 'N/A'"></span>
+            </div>
+            
+            <div class="actions" style="margin-top: 20px;">
+                <a sec:authorize="hasRole('TEACHER')" th:href="@{/students/edit/{id}(id=${student.id})}" class="btn btn-secondary">Edit</a>
+                <a sec:authorize="hasRole('TEACHER')" th:href="@{/students/delete/{id}(id=${student.id})}" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+            </div>
+        </div>
+        
+        <!-- Enrolled Courses -->
+        <div class="card">
+            <h2>Enrolled Courses</h2>
+            <table th:if="${student.courses != null && !student.courses.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Credits</th>
+                        <th>Teacher</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="course : ${student.courses}">
+                        <td th:text="${course.code}"></td>
+                        <td th:text="${course.name}"></td>
+                        <td th:text="${course.credits}"></td>
+                        <td th:text="${course.teacher != null} ? ${course.teacher.firstName + ' ' + course.teacher.lastName} : 'N/A'"></td>
+                        <td>
+                            <form th:action="@{/students/unenroll/{studentId}/{courseId}(studentId=${student.id}, courseId=${course.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Unenroll</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${student.courses == null || student.courses.isEmpty()}" style="color: #666;">No courses enrolled yet.</p>
+        </div>
+        
+        <!-- Available Courses to Enroll -->
+        <div class="card">
+            <h2>Enroll in Course</h2>
+            <form th:action="@{/students/enroll/{studentId}/{courseId}(studentId=${student.id}, courseId=0)}" method="post" id="enrollForm">
+                <div class="form-group">
+                    <label for="courseSelect">Select Course</label>
+                    <select id="courseSelect" onchange="updateEnrollAction(this)">
+                        <option value="">-- Select a Course --</option>
+                        <th:block th:each="course : ${availableCourses}">
+                            <option th:if="${student.courses == null || !student.courses.contains(course)}" 
+                                    th:value="${course.id}" 
+                                    th:text="${course.code + ' - ' + course.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success" id="enrollBtn" disabled>Enroll</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function updateEnrollAction(select) {
+            var courseId = select.value;
+            var form = document.getElementById('enrollForm');
+            var btn = document.getElementById('enrollBtn');
+            var studentId = [[${student.id}]];
+            
+            if (courseId) {
+                form.action = '/students/enroll/' + studentId + '/' + courseId;
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>

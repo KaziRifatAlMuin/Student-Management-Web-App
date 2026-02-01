@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Student Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/students">Students</a></li>
+            <li><a href="/teachers">Teachers</a></li>
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="/departments">Departments</a></li>
+            <li><a href="/profile">My Profile</a></li>
+            <li class="logout-btn">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>My Profile</h1>
+            <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>
+        </div>
+        
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        
+        <div class="card">
+            <h2>Account Information</h2>
+            <div class="detail-row">
+                <span class="detail-label">Username:</span>
+                <span class="detail-value" th:text="${user.username}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" th:text="${user.email}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Role:</span>
+                <span class="detail-value">
+                    <span class="badge" th:classappend="${user.role.name() == 'ROLE_TEACHER'} ? 'badge-teacher' : 'badge-student'"
+                          th:text="${user.role.name() == 'ROLE_TEACHER'} ? 'Teacher' : 'Student'"></span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="card" th:if="${profile != null}">
+            <h2 th:text="${isStudent} ? 'Student Profile' : 'Teacher Profile'">Profile Details</h2>
+            
+            <div class="detail-row">
+                <span class="detail-label">First Name:</span>
+                <span class="detail-value" th:text="${profile.firstName}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Last Name:</span>
+                <span class="detail-value" th:text="${profile.lastName}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" th:text="${profile.email}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value" th:text="${profile.phone ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-row" th:if="${profile.department != null}">
+                <span class="detail-label">Department:</span>
+                <span class="detail-value" th:text="${profile.department.name}"></span>
+            </div>
+            
+            <!-- Student-specific fields -->
+            <div th:if="${isStudent}">
+                <div class="detail-row" th:if="${profile.studentId != null}">
+                    <span class="detail-label">Student ID:</span>
+                    <span class="detail-value" th:text="${profile.studentId}"></span>
+                </div>
+                <div class="detail-row" th:if="${profile.year != null}">
+                    <span class="detail-label">Year:</span>
+                    <span class="detail-value" th:text="${profile.year}"></span>
+                </div>
+            </div>
+            
+            <!-- Teacher-specific fields -->
+            <div th:if="${!isStudent}">
+                <div class="detail-row" th:if="${profile.qualification != null}">
+                    <span class="detail-label">Qualification:</span>
+                    <span class="detail-value" th:text="${profile.qualification}"></span>
+                </div>
+                <div class="detail-row" th:if="${profile.specialization != null}">
+                    <span class="detail-label">Specialization:</span>
+                    <span class="detail-value" th:text="${profile.specialization}"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enrolled Courses (for students) -->
+        <div class="card" th:if="${isStudent && profile != null && profile.courses != null && !profile.courses.isEmpty()}">
+            <h2>My Enrolled Courses</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Credits</th>
+                        <th>Teacher</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="course : ${profile.courses}">
+                        <td th:text="${course.code}"></td>
+                        <td th:text="${course.name}"></td>
+                        <td th:text="${course.credits}"></td>
+                        <td th:text="${course.teacher != null} ? ${course.teacher.firstName + ' ' + course.teacher.lastName} : 'N/A'"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Courses Taught (for teachers) -->
+        <div class="card" th:if="${!isStudent && profile != null && profile.courses != null && !profile.courses.isEmpty()}">
+            <h2>Courses I Teach</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Credits</th>
+                        <th>Students</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="course : ${profile.courses}">
+                        <td th:text="${course.code}"></td>
+                        <td th:text="${course.name}"></td>
+                        <td th:text="${course.credits}"></td>
+                        <td th:text="${course.students != null} ? ${course.students.size()} : 0"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
